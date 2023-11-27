@@ -48,6 +48,46 @@ const register = async (req, res) => {
   }
 };
 
+
+// the logic for loggin a user 
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      console.log("This user does not exist");
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+    const isPasswordMatch = await bcrypt.compare(password, existingUser.password);
+    if (!isPasswordMatch) {
+      console.log("The password does not match");
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+    jwt.sign({ userId: existingUser._id }, JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+      if (err) {
+        console.error("Error signing JWT token:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+      res.cookie('token', token, { sameSite: 'none', secure: true }).status(200).json({
+        id: existingUser._id,
+        message: "User logged in successfully",
+        token,
+        user: {
+          userId: existingUser._id,
+          email: existingUser.email,
+          // Include other user information as needed
+          firstname:existingUser.firstname,
+          lastname:existingUser.lastname,
+        },
+      });
+    });
+  } catch (e) {
+    console.error("Error during login:", e);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   register,
+  login,
 };
