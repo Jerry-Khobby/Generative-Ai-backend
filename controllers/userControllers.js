@@ -25,13 +25,13 @@ const register = async (req, res) => {
     console.log("The new user created:", newUser);
     await newUser.save();
 
-    jwt.sign({ userId: newUser._id }, JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+    jwt.sign({ userId: newUser._id }, JWT_SECRET, { expiresIn: '360h' }, (err, token) => {
       if (err) {
         console.error("Error signing JWT token:", err);
         return res.status(500).json({ error: "Internal Server Error" });
       }
       // Respond with the token and any additional user information you want to include
-      res.cookie('token', token, { sameSite: 'none', secure: true }).status(201).json({
+      res.cookie('token', token, { sameSite: 'none', secure: true,httpOnly:true }).status(201).json({
         id: newUser._id,
         message: "User registered successfully",
         token,
@@ -56,19 +56,19 @@ const login = async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
       console.log("This user does not exist");
-      return res.status(401).json({ error: "Invalid email or password" });
+      return res.status(401).json({ error: "This user does not exist" });
     }
     const isPasswordMatch = await bcrypt.compare(password, existingUser.password);
     if (!isPasswordMatch) {
       console.log("The password does not match");
-      return res.status(401).json({ error: "Invalid email or password" });
+      return res.status(401).json({ error: "Invalid  password" });
     }
-    jwt.sign({ userId: existingUser._id }, JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+    jwt.sign({ userId: existingUser._id }, JWT_SECRET, { expiresIn: '360h' }, (err, token) => {
       if (err) {
         console.error("Error signing JWT token:", err);
         return res.status(500).json({ error: "Internal Server Error" });
       }
-      res.cookie('token', token, { sameSite: 'none', secure: true }).status(200).json({
+      res.cookie('token', token, { sameSite: 'none', secure: true,httpOnly:true}).status(200).json({
         id: existingUser._id,
         message: "User logged in successfully",
         token,
