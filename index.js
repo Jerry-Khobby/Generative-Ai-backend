@@ -10,7 +10,10 @@ const userRoutes =require("./routes/userRoutes");
 
 
 //Defining   how long the session must take 
-app.use(cors());
+app.use(cors({
+    credentials: true,
+    origin: "http://localhost:3000",
+}));
 
 // using the body parser to I get items from the frontend to the backend
 app.use(bodyParser.json());
