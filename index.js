@@ -5,6 +5,7 @@ const bodyParser=require("body-parser");
 const mongoose =require("mongoose");
 const dotenv=require("dotenv").config();
 const cors =require("cors");
+const cookieParser = require('cookie-parser');
 const userRoutes =require("./routes/userRoutes");
 
 
@@ -18,6 +19,8 @@ app.use(cors({
 // using the body parser to I get items from the frontend to the backend
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(cookieParser());
 
 // connecting to my database server usin mongoose 
 const MONGODB_URI = process.env.MONGODB_URI;
